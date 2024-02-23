@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>编辑</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link rel="stylesheet" href="/static/lib/layui-v2.6.3/css/layui.css" media="all">
+    <link rel="stylesheet" href="/static/lib/jq-module/zyupload/zyupload-1.0.0.min.css" media="all">
+    <link rel="stylesheet" href="/static/css/public.css" media="all">
+    <style>
+        body {
+            background-color: #ffffff;
+        }
+    </style>
+</head>
+<body>
+<div class="layui-form layuimini-form">
+    <input type="hidden" name="id" id="id" value=""/>
+    <div class="layui-form-item">
+        <label class="layui-form-label required">学号</label>
+        <div class="layui-input-block">
+            <input type="text" name="sno" id="sno" lay-verify="required" lay-reqtext="学号不能为空"
+                   placeholder="请输入学号" value=""
+                   class="layui-input">
+            <tip></tip>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label required">密码</label>
+        <div class="layui-input-block">
+            <input type="password" name="spassword" id="spassword" lay-verify="required" lay-reqtext="密码不能为空"
+                   placeholder="请输入密码" value=""
+                   class="layui-input">
+            <tip></tip>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label required">姓名</label>
+        <div class="layui-input-block">
+            <input type="text" name="sname" id="sname" lay-verify="required" lay-reqtext="姓名不能为空"
+                   placeholder="请输入姓名" value=""
+                   class="layui-input">
+            <tip></tip>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label required">年级</label>
+        <div class="layui-input-block">
+            <input type="text" name="sgrade" id="sgrade" lay-verify="required" lay-reqtext="年级不能为空"
+                   placeholder="请输入年级" value=""
+                   class="layui-input">
+            <tip></tip>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label required">生日</label>
+        <div class="layui-input-block">
+            <input type="text" name="sbirthday" id="sbirthday" lay-verify="required" lay-reqtext="生日不能为空"
+                   placeholder="请选择生日" value=""
+                   class="layui-input">
+            <tip></tip>
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <div class="layui-input-block">
+            <button class="layui-btn layui-btn-normal" lay-submit lay-filter="saveBtn">确认保存</button>
+        </div>
+    </div>
+</div>
+<script src="/static/lib/jquery-3.4.1/jquery-3.4.1.min.js" charset="utf-8"></script>
+<script src="/static/lib/layui-v2.6.3/layui.js" charset="utf-8"></script>
+<script src="/static/lib/jq-module/zyupload/zyupload-1.0.0.min.js" charset="utf-8"></script>
+<script>
+
+    layui.use(['form', 'laydate'], function () {
+        var form = layui.form;
+        var layer = layui.layer;
+        var laydate = layui.laydate;
+        var $ = layui.$;
+
+        laydate.render({
+            elem: '#sbirthday'
+            , type: 'date'
+            , trigger: 'click'
+        });
+
+        //监听提交
+        form.on('submit(saveBtn)', function (data) {
+
+            $.ajax({
+                url: '/ums/editStudent/', //换成自己的url
+                type: 'POST',
+                dataType: 'json',
+                data: data.field,
+                success: function (res) {
+                    if (res.code == 200) {
+                        layer.msg("学生信息编辑成功", {
+                            icon: 1,
+                            time: 2000
+                        }, function () {
+                            parent.layer
+                            var submit = parent.layui.$("#layuiadmin-form-submit");
+                            submit.click();
+                            var iframeIndex = parent.layer.getFrameIndex(window.name);
+                            parent.layer.close(iframeIndex);
+                        });
+                    } else {
+                        layer.msg("学生信息编辑失败,请重新编辑", {
+                            icon: 2,
+                            time: 2000
+                        }, function () {
+                        });
+                    }
+                },
+                error: function (e) {
+                    layer.msg("学生信息编辑失败,请重新编辑", {
+                        icon: 2,
+                        time: 2000
+                    }, function () {
+                    });
+                }
+            });
+            return false;
+        });
+    });
+
+    function setData(data) {
+        $("#id").val(data.id);
+        $("#sno").val(data.sno);
+        $("#spassword").val(data.spassword);
+        $("#sname").val(data.sname);
+        $("#sgrade").val(data.sgrade);
+        $("#sbirthday").val(data.sbirthday);
+    }
+</script>
+</body>
+</html>

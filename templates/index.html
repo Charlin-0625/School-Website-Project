@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="zh-cn" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <title>index</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="/static/lib/layui-v2.6.3/css/layui.css" media="all">
+</head>
+<body>
+<div class="layui-layout layui-layout-admin">
+    <div class="layui-header">
+        <div class="layui-logo layui-hide-xs">XXX system</div>
+        <!-- 头部区域（可配合layui 已有的水平导航） -->
+        <ul class="layui-nav layui-layout-left">
+            <!-- 移动端显示 -->
+            <li class="layui-nav-item layui-show-xs-inline-block layui-hide-sm" lay-header-event="menuLeft">
+                <i class="layui-icon layui-icon-spread-left"></i>
+            </li>
+            <li class="layui-nav-item layui-hide-xs" id="taskMenu">
+                <a href="/ums/taskManager/" target="right">Task List</a>
+            </li>
+            <li class="layui-nav-item layui-hide-xs" id="studentMenu">
+                <a href="/ums/studentManager/" target="right">Student List</a>
+            </li>
+        </ul>
+        <ul class="layui-nav layui-layout-right">
+            <li class="layui-nav-item layui-hide layui-show-sm-inline-block">
+                <a href="javascript:;">
+                    <img src="/static/images/favicon.ico" class="layui-nav-img">
+                    <span id="username">tester</span>
+                </a>
+                <dl class="layui-nav-child">
+                    <dd><a href="javascript:;" class="login-out">Sign Out</a></dd>
+                </dl>
+            </li>
+            <li class="layui-nav-item" lay-header-event="menuRight" lay-unselect>
+                <a href="javascript:;">
+                    <i class="layui-icon layui-icon-more-vertical"></i>
+                </a>
+            </li>
+        </ul>
+    </div>
+    <div class="layui-body">
+        <iframe scrolling="auto" rameborder="0" src="/ums/welcome/" name="right" width="100%" height="100%"></iframe>
+
+    </div>
+    <div class="layui-footer" style="text-align:center;">
+        <!-- 底部固定区域 -->
+        system@2024 652894782
+    </div>
+</div>
+
+<style type="text/css">
+    .layui-body {
+        position: relative;
+        left: 0;
+        right: 0;
+        top: 0;
+        bottom: 0;
+        z-index: 900;
+        width: auto;
+        box-sizing: border-box;
+    }
+
+    .layui-layout-admin .layui-header {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        background-color: #009688;
+    }
+
+    .layui-layout-admin .layui-logo {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 200px;
+        height: 100%;
+        line-height: 60px;
+        text-align: center;
+        color: #ffffff;
+        font-size: 16px;
+    }
+
+    .layui-layout-admin .layui-footer {
+        position: fixed;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        z-index: 990;
+        height: 44px;
+        line-height: 44px;
+        padding: 0 15px;
+        box-shadow: -1px 0 4px rgb(0 0 0 / 12%);
+        background-color: #FAFAFA;
+    }
+</style>
+
+<script src="/static/lib/layui-v2.6.3/layui.js" charset="utf-8"></script>
+<script>
+    //JS
+    layui.use(['element', 'layer', 'util'], function () {
+        var element = layui.element;
+        var layer = layui.layer;
+        var util = layui.util;
+        var $ = layui.$;
+
+        //头部事件
+        util.event('lay-header-event', {
+            menuLeft: function (othis) { // 左侧菜单事件
+                layer.msg('展开左侧菜单的操作', {icon: 0});
+            },
+            menuRight: function () {  // 右侧菜单事件
+                layer.open({
+                    type: 1,
+                    title: '更多',
+                    content: '<div style="padding: 15px;">处理右侧面板的操作</div>',
+                    area: ['260px', '100%'],
+                    offset: 'rt', // 右上角
+                    anim: 'slideLeft', // 从右侧抽屉滑出
+                    shadeClose: true,
+                    scrollbar: false
+                });
+            }
+        });
+
+        $.ajax({
+            url: '/ums/getUserInfo/',
+            type: 'POST',
+            dataType: 'json',
+            async: false,  //同步
+            data: {},
+            success: function (res) {
+                console.log(res.data)
+                data = JSON.parse(res.data);
+                $('#username').text(data.username);
+                if (data.type == 'student') {
+                    $("#studentMenu").hide();
+                } else {
+                    $("#taskMenu").hide();
+                }
+            }
+        });
+
+        $('.login-out').on("click", function () {
+
+            $.ajax({
+                url: "/ums/logout/",
+                type: "POST",
+                data: {},
+                dataType: "json",
+                success: function (result) {
+                    if (result.code == 200) {
+                        layer.msg('退出登录成功', function () {
+                            window.location = '/ums/home/';
+                        });
+                    }
+
+                }
+            });
+
+        });
+
+    });
+</script>
+</body>
+</html>

@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="zh-cn" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <title>任务信息管理</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link rel="stylesheet" href="/static/lib/layui-v2.6.3/css/layui.css" media="all">
+    <link rel="stylesheet" href="/static/css/public.css" media="all">
+</head>
+<body>
+<div class="layui-bg-gray" style="padding: 16px;">
+
+    <button type="button" class="layui-btn layui-btn-sm layui-btn-radius layui-bg-red" style="margin-bottom: 20px;"
+            onclick="add()">
+        Add Task
+    </button>
+
+    <div class="layui-row layui-col-space15" id="taskDiv">
+        <div class="layui-col-md3" style="border:1px solid #0bb76f;border-radius:10px">
+            <div class="layui-card">
+                <div class="layui-card-header"></div>
+                <div class="layui-card-body">
+                    <p></p>
+                </div>
+                <div style="padding-left: 15px;">
+                    <span class="layui-badge">delete</span>
+                    <span class="layui-badge layui-bg-blue">edit</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="/static/lib/jquery-3.4.1/jquery-3.4.1.min.js" charset="utf-8"></script>
+<script src="/static/lib/layui-v2.6.3/layui.js" charset="utf-8"></script>
+<script type="text/javascript" th:inline="none">
+    var $;
+    var layer;
+    layui.use(['form', 'table'], function () {
+        $ = layui.jquery;
+        layer = layui.layer;
+        var form = layui.form;
+        var table = layui.table;
+
+
+    });
+
+    function query() {
+        $.ajax({
+            url: '/ums/selectTaskByLike/',
+            type: 'GET',
+            dataType: 'json',
+            data: {
+                'page': '1',
+                'limit': '99999',
+                'param': ''
+            },
+            success: function (res) {
+                console.log("res", res);
+                if (res.code == 0) {
+                    var data = res.data;
+                    console.log("data", data);
+                    console.log("length", data.length);
+                    var ele = '';
+                    for (var i = 0; i < data.length; i++) {
+                        var obj = data[i];
+                        console.log("obj", obj);
+                        ele = ele +
+                            '<div class="layui-col-md3">' +
+                            '<div class="layui-card" style="border:1px solid #0bb76f;border-radius:10px">' +
+                            '<div class="layui-card-header">' + obj.title + '</div>' +
+                            '<div class="layui-card-body">' + obj.content +
+                            '<p>' + obj.exectime + '</p>' +
+                            '</div>' +
+                            '<div style="padding-left: 15px;padding-bottom: 10px;">' +
+                            '<span class="layui-badge" onclick="del(' + obj.id + ')">delete</span>' +
+                            '<span style="margin-left: 10px;" class="layui-badge layui-bg-blue" onclick="update(' + obj.id + ',\'' + obj.title + '\',\'' + obj.content + '\',\'' + obj.exectime + '\',' + obj.studentid + ')">edit</span>' +
+                            '</div>' +
+                            '</div>' +
+                            '</div>';
+                    }
+                    $('#taskDiv').empty();
+                    $('#taskDiv').append(ele);
+                }
+            },
+            error: function (e) {
+                layer.msg("任务信息查询失败", {
+                    icon: 2,
+                    time: 1000
+                }, function () {
+
+                });
+            }
+        });
+    }
+
+    query();
+
+    function add() {
+        var index = layer.open({
+            title: '添加任务信息',
+            type: 2,
+            shade: 0.2,
+            maxmin: true,
+            shadeClose: true,
+            area: ['60%', '60%'],
+            content: '/ums/taskAdd',
+        });
+        $(window).on("resize", function () {
+            layer.full(index);
+        });
+    }
+
+    function update(id, title, content, exectime, studentid) {
+
+        var index = layer.open({
+            title: '编辑任务信息',
+            type: 2,
+            shade: 0.2,
+            maxmin: true,
+            shadeClose: true,
+            area: ['60%', '60%'],
+            content: '/ums/taskEdit',
+            success: function (layero, index) {
+                // 获取子页面的iframe
+                var iframe = window['layui-layer-iframe' + index];
+                // 向子页面的全局函数child传参
+                iframe.setData({
+                    'id': id,
+                    'title': title,
+                    'content': content,
+                    'exectime': exectime,
+                    'studentid': studentid
+                });
+            }
+        });
+        $(window).on("resize", function () {
+            layer.full(index);
+        });
+    }
+
+    function del(id) {
+        layer.confirm('确定要删除该行数据吗', function (index) {
+            $.ajax({
+                url: '/ums/delTask/',
+                type: 'POST',
+                dataType: 'json',
+                data: {
+                    'id': id
+                },
+                success: function (res) {
+                    if (res.code == 200) {
+                        layer.msg("任务信息删除成功", {
+                            icon: 1,
+                            time: 1000
+                        }, function () {
+                            query();
+                        });
+                    } else {
+                        layer.msg("任务信息删除失败,请重新删除", {
+                            icon: 2,
+                            time: 1000
+                        }, function () {
+
+                        });
+                    }
+                },
+                error: function (e) {
+                    layer.msg("任务信息删除失败,请重新删除", {
+                        icon: 2,
+                        time: 1000
+                    }, function () {
+
+                    });
+                }
+            });
+            layer.close(index);
+        });
+    }
+
+
+</script>
+
+</body>
+</html>
