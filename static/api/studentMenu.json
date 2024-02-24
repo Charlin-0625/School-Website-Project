@@ -1,0 +1,27 @@
+{
+  "homeInfo": {
+    "title": "首页",
+    "href": "/ums/welcome"
+  },
+  "logoInfo": {
+    "title": "LAYUI MINI",
+    "image": "/static/images/logo.png",
+    "href": ""
+  },
+  "menuInfo": [
+    {
+      "title": "功能模板",
+      "icon": "fa fa-address-book",
+      "href": "",
+      "target": "_self",
+      "child": [
+        {
+          "title": "任务列表",
+          "href": "/ums/taskManager",
+          "icon": "fa fa-tasks",
+          "target": "_self"
+        }
+      ]
+    }
+  ]
+}
